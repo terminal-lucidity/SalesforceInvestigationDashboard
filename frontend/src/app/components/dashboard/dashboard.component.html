@@ -4,15 +4,15 @@
     <span class="sample-data-banner-text">Showing sample data. Backend unavailable.</span>
   </div>
 
-  <header class="dashboard-header">
-    <h1>Investigation Trend Dashboard</h1>
-    <p class="subtitle">Systemic product failures and repeat escalations visibility</p>
-  </header>
+  <div class="dashboard-top">
+    <header class="dashboard-header">
+      <h1>Investigation Trend Dashboard</h1>
+      <p class="subtitle">Systemic product failures and repeat escalations visibility</p>
+    </header>
 
-  <!-- Filters Section -->
-  <section class="filters-section">
-    <h2>Filters</h2>
-    <form [formGroup]="filterForm" class="filters-form">
+    <!-- Filters Section -->
+    <section class="filters-section">
+      <form [formGroup]="filterForm" class="filters-form">
       <div class="filter-group">
         <label for="startDate">Start Date:</label>
         <input
@@ -66,7 +66,8 @@
         </button>
       </div>
     </form>
-  </section>
+    </section>
+  </div>
 
   <!-- Loading State -->
   <div *ngIf="loading" class="loading-container">
