@@ -1,0 +1,137 @@
+<div class="dashboard">
+  <!-- Sample data banner when backend is unavailable -->
+  <div *ngIf="usingFallbackData" class="sample-data-banner" role="status">
+    <span class="sample-data-banner-text">Showing sample data. Backend unavailable.</span>
+  </div>
+
+  <div class="dashboard-top">
+    <header class="dashboard-header">
+      <h1>Investigation Trend Dashboard</h1>
+      <p class="subtitle">Systemic product failures and repeat escalations visibility</p>
+    </header>
+
+    <!-- Filters Section -->
+    <section class="filters-section">
+      <form [formGroup]="filterForm" class="filters-form">
+      <div class="filter-group">
+        <label for="startDate">Start Date:</label>
+        <input
+          id="startDate"
+          type="date"
+          formControlName="startDate"
+          class="date-input"
+        />
+      </div>
+
+      <div class="filter-group">
+        <label for="endDate">End Date:</label>
+        <input
+          id="endDate"
+          type="date"
+          formControlName="endDate"
+          class="date-input"
+        />
+      </div>
+
+      <div class="filter-group">
+        <label for="productArea">Product Area:</label>
+        <select
+          id="productArea"
+          formControlName="productArea"
+          class="select-input"
+        >
+          <option value="all">All Areas</option>
+          <option *ngFor="let area of productAreas" [value]="area">
+            {{ area }}
+          </option>
+        </select>
+      </div>
+
+      <div class="filter-actions">
+        <button
+          type="button"
+          (click)="applyFilters()"
+          class="btn btn-primary"
+          [disabled]="loading"
+        >
+          Apply Filters
+        </button>
+        <button
+          type="button"
+          (click)="resetFilters()"
+          class="btn btn-secondary"
+          [disabled]="loading"
+        >
+          Reset
+        </button>
+      </div>
+    </form>
+    </section>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading trends...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loading" class="error-container">
+    <div class="error-message">
+      <strong>Error:</strong> {{ error }}
+      <button type="button" (click)="loadDashboardData()" class="btn btn-primary retry-btn">
+        Retry
+      </button>
+    </div>
+  </div>
+
+  <!-- Charts Section -->
+  <section *ngIf="dashboardData && !loading && !error" class="charts-section">
+    <div class="charts-grid">
+      <div class="chart-container">
+        <h3 class="chart-title">Cases by Product Area</h3>
+        <canvas #barChartCanvas></canvas>
+      </div>
+      <div class="chart-container">
+        <h3 class="chart-title">Top 5 Error Codes</h3>
+        <canvas #pieChartCanvas></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- Executive Summary Section -->
+  <section *ngIf="dashboardData && !loading && !error" class="summary-section">
+    <button
+      type="button"
+      (click)="generateExecutiveSummary()"
+      class="btn btn-primary btn-large"
+      [disabled]="!dashboardData"
+    >
+      Generate Executive Summary
+    </button>
+
+    <div *ngIf="showSummary && executiveSummary" class="summary-modal">
+      <div class="summary-content">
+        <div class="summary-header">
+          <h2>Executive Summary</h2>
+          <button
+            type="button"
+            (click)="closeSummary()"
+            class="close-btn"
+            aria-label="Close summary"
+          >
+            ×
+          </button>
+        </div>
+        <div class="summary-body">
+          <pre>{{ executiveSummary }}</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Empty State -->
+  <div *ngIf="!dashboardData && !loading && !error" class="empty-state">
+    <p>No data available. Please check your filters or try again later.</p>
+  </div>
+</div>

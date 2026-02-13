@@ -1,0 +1,9 @@
+{
+  "name": "salesforce-investigation-dashboard",
+  "private": true,
+  "scripts": {
+    "start": "npm start --prefix frontend",
+    "build": "npm run build --prefix frontend",
+    "ng": "npm run ng --prefix frontend"
+  }
+}
