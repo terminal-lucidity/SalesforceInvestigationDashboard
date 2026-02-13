@@ -85,10 +85,13 @@ describe('InvestigationService', () => {
       });
     });
 
-    it('should treat missing productAreaVolume as invalid and use fallback', () => {
+    it('should accept empty arrays as valid backend response', () => {
       service.getTrends().subscribe((response) => {
-        expect(response.isFallback).toBe(true);
-        expect(response.data).toEqual(MOCK_TRENDS_DATA);
+        expect(response.isFallback).toBe(false);
+        expect(response.data).toEqual({
+          trends: { productAreaVolume: [], errorCodes: [] },
+          summary: 'No volume'
+        });
       });
 
       const req = httpMock.expectOne((r) => r.url.includes('/investigations/trends'));

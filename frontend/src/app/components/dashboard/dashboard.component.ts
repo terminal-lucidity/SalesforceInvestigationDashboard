@@ -80,7 +80,9 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         this.usingFallbackData = response.isFallback;
         const volume = data?.trends?.productAreaVolume;
         this.extractProductAreas(Array.isArray(volume) ? volume : []);
-        if (response.isFallback && filters?.productArea) {
+        // Apply client-side product area filtering so the UI behaves correctly
+        // even when backend returns unfiltered placeholder data.
+        if (filters?.productArea) {
           data = this.applyClientSideFilters(data, filters.productArea);
         }
         this.dashboardData = data;

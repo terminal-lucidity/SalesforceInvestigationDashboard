@@ -107,6 +107,18 @@ describe('DashboardComponent', () => {
     });
   });
 
+  it('should filter product area client-side when backend data is unfiltered', () => {
+    vi.spyOn(investigationService, 'getTrends').mockReturnValue(
+      of({ data: validApiData, isFallback: false })
+    );
+    fixture.detectChanges();
+
+    component.filterForm.patchValue({ productArea: 'Connect' });
+    component.applyFilters();
+
+    expect(component.dashboardData?.trends.productAreaVolume).toEqual([{ label: 'Connect', value: 30 }]);
+  });
+
   it('should call getTrends with no args when resetFilters is called', () => {
     const getTrendsSpy = vi.spyOn(investigationService, 'getTrends').mockReturnValue(
       of({ data: validApiData, isFallback: false })

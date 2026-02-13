@@ -2,10 +2,12 @@ import os
 import urllib.parse
 import urllib.request
 import json
+import ssl
 from pathlib import Path
 from typing import Dict, Optional
 
 from simple_salesforce import Salesforce
+import certifi
 
 
 def _required_env(name: str) -> str:
@@ -84,7 +86,9 @@ def _post_token_request(payload: Dict[str, str]) -> Dict[str, str]:
         headers={"Content-Type": "application/x-www-form-urlencoded"},
         method="POST"
     )
-    with urllib.request.urlopen(req, timeout=20) as response:
+    # Use certifi CA bundle explicitly to avoid local macOS/Python CA issues.
+    ssl_context = ssl.create_default_context(cafile=certifi.where())
+    with urllib.request.urlopen(req, timeout=20, context=ssl_context) as response:
         raw = response.read().decode("utf-8")
         return json.loads(raw)
 

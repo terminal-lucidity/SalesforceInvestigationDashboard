@@ -49,7 +49,6 @@ function isValidDashboardData(body: unknown): body is DashboardData {
   const codes = trends['errorCodes'] as unknown[];
   return (
     Array.isArray(volume) &&
-    volume.length > 0 &&
     Array.isArray(codes) &&
     typeof o['summary'] === 'string'
   );
