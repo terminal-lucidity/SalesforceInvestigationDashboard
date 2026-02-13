@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, ViewChild, ElementRef, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import Chart from 'chart.js/auto';
@@ -30,12 +30,13 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(
     private fb: FormBuilder,
-    private investigationService: InvestigationService
+    private investigationService: InvestigationService,
+    private cdr: ChangeDetectorRef
   ) {
     this.filterForm = this.fb.group({
       startDate: [''],
       endDate: [''],
-      productArea: ['']
+      productArea: ['all']
     });
   }
 
@@ -63,11 +64,16 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.investigationService.getTrends(filters).subscribe({
       next: (response) => {
-        this.dashboardData = response.data;
+        let data = response.data;
         this.usingFallbackData = response.isFallback;
-        const volume = response.data?.trends?.productAreaVolume;
+        const volume = data?.trends?.productAreaVolume;
         this.extractProductAreas(Array.isArray(volume) ? volume : []);
+        if (response.isFallback && filters?.productArea) {
+          data = this.applyClientSideFilters(data, filters.productArea);
+        }
+        this.dashboardData = data;
         this.loading = false;
+        this.cdr.detectChanges();
         setTimeout(() => {
           this.initializeCharts();
         }, 0);
@@ -77,6 +83,22 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         this.loading = false;
       }
     });
+  }
+
+  /** Apply product-area filter to fallback data (client-side when backend is unavailable). */
+  private applyClientSideFilters(data: DashboardData, productArea: string): DashboardData {
+    const volume = data.trends.productAreaVolume;
+    const filtered = volume.filter(item => item.label === productArea);
+    if (filtered.length === 0) {
+      return data;
+    }
+    return {
+      ...data,
+      trends: {
+        ...data.trends,
+        productAreaVolume: filtered
+      }
+    };
   }
 
   extractProductAreas(productAreaVolume: TrendData[]): void {
@@ -234,7 +256,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.filterForm.reset({
       startDate: '',
       endDate: '',
-      productArea: ''
+      productArea: 'all'
     });
     this.loadDashboardData();
   }
