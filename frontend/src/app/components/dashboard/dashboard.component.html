@@ -1,4 +1,9 @@
 <div class="dashboard">
+  <!-- Sample data banner when backend is unavailable -->
+  <div *ngIf="usingFallbackData" class="sample-data-banner" role="status">
+    <span class="sample-data-banner-text">Showing sample data. Backend unavailable.</span>
+  </div>
+
   <header class="dashboard-header">
     <h1>Investigation Trend Dashboard</h1>
     <p class="subtitle">Systemic product failures and repeat escalations visibility</p>
@@ -66,7 +71,7 @@
   <!-- Loading State -->
   <div *ngIf="loading" class="loading-container">
     <div class="spinner"></div>
-    <p>Loading dashboard data...</p>
+    <p>Loading trends...</p>
   </div>
 
   <!-- Error State -->
@@ -82,13 +87,12 @@
   <!-- Charts Section -->
   <section *ngIf="dashboardData && !loading && !error" class="charts-section">
     <div class="charts-grid">
-      <!-- Bar Chart -->
       <div class="chart-container">
+        <h3 class="chart-title">Cases by Product Area</h3>
         <canvas #barChartCanvas></canvas>
       </div>
-
-      <!-- Pie Chart -->
       <div class="chart-container">
+        <h3 class="chart-title">Top 5 Error Codes</h3>
         <canvas #pieChartCanvas></canvas>
       </div>
     </div>

@@ -22,6 +22,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   dashboardData: DashboardData | null = null;
   executiveSummary: string | null = null;
   showSummary = false;
+  protected usingFallbackData = false;
 
   private barChart: Chart<'bar', number[], string> | null = null;
   private pieChart: Chart<'pie', number[], string> | null = null;
@@ -58,11 +59,13 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   loadDashboardData(filters?: TrendFilters): void {
     this.loading = true;
     this.error = null;
+    this.usingFallbackData = false;
 
     this.investigationService.getTrends(filters).subscribe({
-      next: (data) => {
-        this.dashboardData = data;
-        this.extractProductAreas(data.trends.productAreaVolume);
+      next: (response) => {
+        this.dashboardData = response.data;
+        this.usingFallbackData = response.isFallback;
+        this.extractProductAreas(response.data.trends.productAreaVolume);
         this.loading = false;
         setTimeout(() => {
           this.initializeCharts();
