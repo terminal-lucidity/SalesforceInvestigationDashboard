@@ -43,15 +43,15 @@ const API_TIMEOUT_MS = 8000;
 function isValidDashboardData(body: unknown): body is DashboardData {
   if (!body || typeof body !== 'object') return false;
   const o = body as Record<string, unknown>;
-  const trends = o.trends as Record<string, unknown> | undefined;
+  const trends = o['trends'] as Record<string, unknown> | undefined;
   if (!trends || typeof trends !== 'object') return false;
-  const volume = trends.productAreaVolume as unknown[];
-  const codes = trends.errorCodes as unknown[];
+  const volume = trends['productAreaVolume'] as unknown[];
+  const codes = trends['errorCodes'] as unknown[];
   return (
     Array.isArray(volume) &&
     volume.length > 0 &&
     Array.isArray(codes) &&
-    typeof o.summary === 'string'
+    typeof o['summary'] === 'string'
   );
 }
 
@@ -68,12 +68,17 @@ export class InvestigationService {
     if (filters?.productArea) params = params.set('productArea', filters.productArea);
 
     return this.http
-      .get<DashboardData>(`${this.apiUrl}/investigations/trends`, {
+      .get<unknown>(`${this.apiUrl}/investigations/trends`, {
         params: params.keys().length ? params : undefined
       })
       .pipe(
         timeout(API_TIMEOUT_MS),
-        map((data) => ({ data, isFallback: false })),
+        map((body): TrendsResponse => {
+          if (isValidDashboardData(body)) {
+            return { data: body, isFallback: false };
+          }
+          return { data: MOCK_TRENDS_DATA, isFallback: true };
+        }),
         catchError((error: HttpErrorResponse | Error) => {
           console.error('Error fetching investigation trends:', error);
           return of({ data: MOCK_TRENDS_DATA, isFallback: true });

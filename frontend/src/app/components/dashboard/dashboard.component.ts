@@ -65,7 +65,8 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       next: (response) => {
         this.dashboardData = response.data;
         this.usingFallbackData = response.isFallback;
-        this.extractProductAreas(response.data.trends.productAreaVolume);
+        const volume = response.data?.trends?.productAreaVolume;
+        this.extractProductAreas(Array.isArray(volume) ? volume : []);
         this.loading = false;
         setTimeout(() => {
           this.initializeCharts();
