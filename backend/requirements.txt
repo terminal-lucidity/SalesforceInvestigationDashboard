@@ -1,0 +1,30 @@
+# Investigation Trend Dashboard - FastAPI requirements
+#
+# Quick start (from backend/):
+# 1) Create venv:
+#    python3 -m venv .venv
+#    source .venv/bin/activate
+#
+# 2) Install deps:
+#    pip install -r requirements.txt
+#
+# 3) Create env (Please ask me for this file):
+#    cp .env.example .env
+#    # Fill Salesforce values in .env
+#
+# 4) Run API:
+#    uvicorn fastapi_app.main:app --reload --port 4000
+#
+# 5) Test endpoints:
+#    curl http://localhost:4000/health
+#    curl http://localhost:4000/api/investigations/trends
+#    curl "http://localhost:4000/api/investigations/trends?startDate=2026-02-01&endDate=2026-02-13&productArea=Connect"
+#    curl http://localhost:4000/api/salesforce/connect-test
+#
+# Swagger:
+#    http://localhost:4000/docs
+
+fastapi==0.116.1
+uvicorn[standard]==0.35.0
+python-dotenv==1.1.1
+simple-salesforce==1.12.9

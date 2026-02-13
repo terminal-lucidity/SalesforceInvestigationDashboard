@@ -6,3 +6,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
+__pycache__/
+*.pyc
+.pytest_cache/
+.pycache/
+.venv/
+venv/
+env/
