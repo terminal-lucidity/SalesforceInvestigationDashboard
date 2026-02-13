@@ -2,6 +2,7 @@ import { Component, OnInit, AfterViewInit, OnDestroy, ViewChild, ElementRef, Cha
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import Chart from 'chart.js/auto';
+import { Subscription } from 'rxjs';
 import { InvestigationService, TrendFilters } from '../../services/investigation.service';
 import type { DashboardData, TrendData, ErrorCode } from '../../models/investigation.model';
 
@@ -27,6 +28,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   private barChart: Chart<'bar', number[], string> | null = null;
   private pieChart: Chart<'pie', number[], string> | null = null;
   protected productAreas: string[] = [];
+  private trendsSubscription: Subscription | null = null;
 
   constructor(
     private fb: FormBuilder,
@@ -49,6 +51,11 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    // Unsubscribe from trends subscription to prevent memory leaks
+    if (this.trendsSubscription) {
+      this.trendsSubscription.unsubscribe();
+      this.trendsSubscription = null;
+    }
     if (this.barChart) {
       this.barChart.destroy();
     }
@@ -62,7 +69,12 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
     this.error = null;
     this.usingFallbackData = false;
 
-    this.investigationService.getTrends(filters).subscribe({
+    // Unsubscribe from previous subscription to prevent memory leaks
+    if (this.trendsSubscription) {
+      this.trendsSubscription.unsubscribe();
+    }
+
+    this.trendsSubscription = this.investigationService.getTrends(filters).subscribe({
       next: (response) => {
         let data = response.data;
         this.usingFallbackData = response.isFallback;
@@ -122,50 +134,114 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
       this.barChart.destroy();
     }
 
+    const maxValue = Math.max(...data.map(item => item.value), 0);
+    const yStep = maxValue <= 10 ? 1 : maxValue <= 50 ? 5 : maxValue <= 100 ? 10 : 20;
+
+    // When few bars (e.g. after filter), cap bar width so one bar doesn't dominate the chart
+    const barCount = data.length;
+    const maxBarThickness = barCount <= 2 ? 80 : undefined;
+    const categoryPercentage = barCount <= 2 ? 0.55 : 0.8;
+
     this.barChart = new Chart(ctx, {
       type: 'bar',
       data: {
         labels: data.map(item => item.label),
         datasets: [{
-          label: 'Case Volume',
+          label: 'Cases',
           data: data.map(item => item.value),
+          maxBarThickness: maxBarThickness,
+          barPercentage: 0.85,
+          categoryPercentage,
           backgroundColor: [
-            'rgba(54, 162, 235, 0.8)',
-            'rgba(255, 99, 132, 0.8)',
-            'rgba(255, 206, 86, 0.8)',
-            'rgba(75, 192, 192, 0.8)',
-            'rgba(153, 102, 255, 0.8)',
-            'rgba(255, 159, 64, 0.8)'
+            'rgba(59, 130, 246, 0.85)',
+            'rgba(236, 72, 153, 0.85)',
+            'rgba(251, 191, 36, 0.85)',
+            'rgba(34, 197, 94, 0.85)',
+            'rgba(139, 92, 246, 0.85)',
+            'rgba(249, 115, 22, 0.85)'
           ],
           borderColor: [
-            'rgba(54, 162, 235, 1)',
-            'rgba(255, 99, 132, 1)',
-            'rgba(255, 206, 86, 1)',
-            'rgba(75, 192, 192, 1)',
-            'rgba(153, 102, 255, 1)',
-            'rgba(255, 159, 64, 1)'
+            'rgba(59, 130, 246, 1)',
+            'rgba(236, 72, 153, 1)',
+            'rgba(251, 191, 36, 1)',
+            'rgba(34, 197, 94, 1)',
+            'rgba(139, 92, 246, 1)',
+            'rgba(249, 115, 22, 1)'
           ],
-          borderWidth: 1
+          borderWidth: 1.5,
+          borderRadius: 4,
+          borderSkipped: false
         }]
       },
       options: {
         responsive: true,
-        maintainAspectRatio: true,
+        maintainAspectRatio: false,
+        layout: {
+          padding: {
+            top: 16,
+            bottom: 16,
+            left: 16,
+            right: 16
+          }
+        },
         plugins: {
           legend: {
-            display: true,
-            position: 'top'
+            display: false
           },
-          title: {
-            display: true,
-            text: 'Volume of Cases per Product Area'
+          tooltip: {
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            padding: 10,
+            titleFont: {
+              size: 13,
+              weight: 600
+            },
+            bodyFont: {
+              size: 13
+            },
+            cornerRadius: 6,
+            displayColors: true,
+            callbacks: {
+              label: (context) => {
+                return `${context.parsed.y} cases`;
+              }
+            }
           }
         },
         scales: {
+          x: {
+            grid: {
+              display: false
+            },
+            ticks: {
+              font: {
+                size: 12
+              },
+              color: '#6B7280',
+              maxRotation: 45,
+              minRotation: 0,
+              padding: 12
+            },
+            border: {
+              display: true,
+              color: '#E5E7EB'
+            }
+          },
           y: {
             beginAtZero: true,
+            grid: {
+              color: '#F3F4F6'
+            },
             ticks: {
-              stepSize: 1
+              stepSize: yStep,
+              font: {
+                size: 11
+              },
+              color: '#6B7280',
+              padding: 12
+            },
+            border: {
+              display: true,
+              color: '#E5E7EB'
             }
           }
         }
@@ -181,6 +257,7 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
 
     // Take only top 5 error codes
     const top5Data = data.slice(0, 5);
+    const total = top5Data.reduce((sum, item) => sum + item.count, 0);
 
     if (this.pieChart) {
       this.pieChart.destroy();
@@ -193,40 +270,63 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
         datasets: [{
           data: top5Data.map(item => item.count),
           backgroundColor: [
-            'rgba(255, 99, 132, 0.8)',
-            'rgba(54, 162, 235, 0.8)',
-            'rgba(255, 206, 86, 0.8)',
-            'rgba(75, 192, 192, 0.8)',
-            'rgba(153, 102, 255, 0.8)'
+            'rgba(236, 72, 153, 0.9)',
+            'rgba(59, 130, 246, 0.9)',
+            'rgba(251, 191, 36, 0.9)',
+            'rgba(34, 197, 94, 0.9)',
+            'rgba(139, 92, 246, 0.9)'
           ],
-          borderColor: [
-            'rgba(255, 99, 132, 1)',
-            'rgba(54, 162, 235, 1)',
-            'rgba(255, 206, 86, 1)',
-            'rgba(75, 192, 192, 1)',
-            'rgba(153, 102, 255, 1)'
-          ],
-          borderWidth: 2
+          borderColor: '#FFFFFF',
+          borderWidth: 2.5,
+          hoverOffset: 4
         }]
       },
       options: {
         responsive: true,
-        maintainAspectRatio: true,
+        maintainAspectRatio: false,
+        layout: {
+          padding: {
+            top: 16,
+            bottom: 16,
+            left: 16,
+            right: 16
+          }
+        },
         plugins: {
           legend: {
             display: true,
-            position: 'right'
-          },
-          title: {
-            display: true,
-            text: 'Top 5 Recurring Error Codes'
+            position: 'right',
+            labels: {
+              padding: 12,
+              font: {
+                size: 11,
+                weight: 500
+              },
+              color: '#374151',
+              usePointStyle: true,
+              pointStyle: 'circle',
+              boxWidth: 8,
+              boxHeight: 8
+            }
           },
           tooltip: {
+            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+            padding: 10,
+            titleFont: {
+              size: 13,
+              weight: 600
+            },
+            bodyFont: {
+              size: 13
+            },
+            cornerRadius: 6,
+            displayColors: true,
             callbacks: {
               label: (context) => {
                 const label = context.label || '';
                 const value = context.parsed || 0;
-                return `${label}: ${value} cases`;
+                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
+                return `${label}: ${value} cases (${percentage}%)`;
               }
             }
           }
@@ -285,10 +385,11 @@ No product area data is currently available to generate a summary. Please ensure
 
     const totalCases = productAreaData.reduce((sum, item) => sum + item.value, 0);
     
-    // Find top product area - safe reduce with initial value
+    // Find top product area - safe reduce with proper initial value
+    // Array is guaranteed non-empty due to check above, but we use first element as initial value
     const topProductArea = productAreaData.reduce((prev, current) =>
       (prev.value > current.value) ? prev : current,
-      productAreaData[0] // Use first element as initial value
+      productAreaData[0] // Safe: array is guaranteed non-empty at this point
     );
     
     const topError = errorData && errorData.length > 0 ? errorData[0] : null;

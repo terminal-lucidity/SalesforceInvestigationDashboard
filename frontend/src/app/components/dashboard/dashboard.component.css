@@ -1,6 +1,6 @@
 .dashboard {
-  padding: 1rem 1.5rem;
-  max-width: 1400px;
+  padding: 1.5rem 2rem;
+  max-width: 1600px;
   margin: 0 auto;
 }
 
@@ -26,9 +26,9 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 1rem;
-  padding-bottom: 1rem;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1.25rem;
   border-bottom: 2px solid var(--color-primary);
 }
 
@@ -39,8 +39,8 @@
 }
 
 .dashboard-header h1 {
-  margin: 0 0 0.2rem 0;
-  font-size: 1.5rem;
+  margin: 0 0 0.4rem 0;
+  font-size: 1.75rem;
   font-weight: 700;
   color: var(--color-text);
   letter-spacing: -0.02em;
@@ -48,7 +48,7 @@
 
 .subtitle {
   color: var(--color-text-muted);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   margin: 0;
   font-weight: 400;
 }
@@ -57,27 +57,27 @@
 .filters-section {
   background: var(--color-surface-elevated);
   border-radius: var(--radius-md);
-  padding: 0.6rem 1rem;
+  padding: 0.85rem 1.25rem;
   box-shadow: var(--shadow-card);
   border: 1px solid var(--color-border);
   flex: 1;
   min-width: 0;
-  max-width: 720px;
+  max-width: 800px;
 }
 
 .filters-form {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.75rem;
-  align-items: center;
+  gap: 1rem;
+  align-items: flex-end;
 }
 
 .filter-group {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 0.4rem;
   flex: 0 1 auto;
-  min-width: 120px;
+  min-width: 140px;
 }
 
 .filter-group label {
@@ -90,13 +90,14 @@
 
 .date-input,
 .select-input {
-  padding: 0.45rem 0.6rem;
+  padding: 0.55rem 0.75rem;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   background-color: var(--color-surface);
   color: var(--color-text);
   transition: border-color 0.2s, box-shadow 0.2s;
+  min-height: 38px;
 }
 
 .date-input:focus,
@@ -211,46 +212,51 @@
 
 /* Charts Section */
 .charts-section {
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .charts-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-  margin-bottom: 1rem;
+  gap: 2rem;
+  margin-bottom: 2rem;
 }
 
 .chart-container {
   background: var(--color-surface-elevated);
   border-radius: var(--radius-md);
-  padding: 1rem;
+  padding: 1.5rem 1.75rem;
   box-shadow: var(--shadow-card);
   border: 1px solid var(--color-border);
-  min-height: 260px;
+  height: 420px;
   position: relative;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .chart-title {
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: var(--color-text-muted);
-  margin: 0 0 0.5rem 0;
+  margin: 0 0 1.25rem 0;
   text-transform: uppercase;
   letter-spacing: 0.03em;
+  flex-shrink: 0;
 }
 
 .chart-container canvas {
   flex: 1;
-  min-height: 180px;
+  min-height: 0;
+  max-height: 100%;
+  width: 100% !important;
+  height: auto !important;
 }
 
 /* Summary Section */
 .summary-section {
   text-align: center;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 
 .summary-modal {
@@ -358,15 +364,15 @@
 
 @media (max-width: 768px) {
   .dashboard {
-    padding: 0.75rem 1rem;
+    padding: 1rem 1.25rem;
   }
 
   .dashboard-top {
     flex-direction: column;
     align-items: stretch;
-    gap: 0.75rem;
-    margin-bottom: 0.75rem;
-    padding-bottom: 0.75rem;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
   }
 
   .dashboard-header {
@@ -374,16 +380,16 @@
   }
 
   .dashboard-header h1 {
-    font-size: 1.35rem;
+    font-size: 1.5rem;
   }
 
   .subtitle {
-    font-size: 0.85rem;
+    font-size: 0.9rem;
   }
 
   .filters-section {
     max-width: none;
-    padding: 0.75rem 1rem;
+    padding: 1rem;
   }
 
   .filters-form {
@@ -401,15 +407,12 @@
   }
 
   .charts-grid {
-    gap: 0.75rem;
+    gap: 1.25rem;
   }
 
   .chart-container {
-    min-height: 240px;
-  }
-
-  .chart-container canvas {
-    min-height: 160px;
+    height: 320px;
+    padding: 1rem 1.25rem;
   }
 
   .chart-title {
