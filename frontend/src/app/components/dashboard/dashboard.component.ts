@@ -364,13 +364,31 @@ export class DashboardComponent implements OnInit, AfterViewInit, OnDestroy {
   generateExecutiveSummary(): void {
     if (!this.dashboardData) return;
 
-    // Hardcoded summary generation based on data
-    const productAreaData = this.dashboardData.trends.productAreaVolume;
-    const errorData = this.dashboardData.trends.errorCodes;
+    const apiSummary = this.dashboardData.summary?.trim();
+    if (apiSummary) {
+      this.executiveSummary = apiSummary;
+      this.showSummary = true;
+      return;
+    }
+
+    this.executiveSummary = this.buildFallbackSummary(this.dashboardData);
+    this.showSummary = true;
+  }
+
+  get dashboardSummary(): string | null {
+    if (!this.dashboardData) return null;
+
+    const apiSummary = this.dashboardData.summary?.trim();
+    return apiSummary || this.buildFallbackSummary(this.dashboardData);
+  }
+
+  private buildFallbackSummary(data: DashboardData): string {
+    const productAreaData = data.trends.productAreaVolume;
+    const errorData = data.trends.errorCodes;
 
     // Validate that we have data to generate summary
     if (!productAreaData || productAreaData.length === 0) {
-      this.executiveSummary = `
+      return `
 **Investigation Trend Summary**
 
 **Status:** No data available
@@ -379,8 +397,6 @@ No product area data is currently available to generate a summary. Please ensure
 
 **Generated:** ${new Date().toLocaleString()}
       `.trim();
-      this.showSummary = true;
-      return;
     }
 
     const totalCases = productAreaData.reduce((sum, item) => sum + item.value, 0);
@@ -397,7 +413,7 @@ No product area data is currently available to generate a summary. Please ensure
       ? ((topError.count / totalCases) * 100).toFixed(1) 
       : '0.0';
 
-    this.executiveSummary = `
+    return `
 **Investigation Trend Summary**
 
 **Primary Driver Analysis:**
@@ -416,8 +432,6 @@ No product area data is currently available to generate a summary. Please ensure
 
 **Generated:** ${new Date().toLocaleString()}
     `.trim();
-
-    this.showSummary = true;
   }
 
   closeSummary(): void {

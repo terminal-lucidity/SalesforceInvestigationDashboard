@@ -101,32 +101,15 @@
 
   <!-- Executive Summary Section -->
   <section *ngIf="dashboardData && !loading && !error" class="summary-section">
-    <button
-      type="button"
-      (click)="generateExecutiveSummary()"
-      class="btn btn-primary btn-large"
-      [disabled]="!dashboardData"
-    >
-      Generate Executive Summary
-    </button>
+    <div class="summary-toolbar">
+      <h2>Executive Summary</h2>
+      <button type="button" class="btn btn-secondary btn-large" [disabled]="true" title="AI summary will be available soon">
+        Generate AI Summary (Coming soon)
+      </button>
+    </div>
 
-    <div *ngIf="showSummary && executiveSummary" class="summary-modal">
-      <div class="summary-content">
-        <div class="summary-header">
-          <h2>Executive Summary</h2>
-          <button
-            type="button"
-            (click)="closeSummary()"
-            class="close-btn"
-            aria-label="Close summary"
-          >
-            ×
-          </button>
-        </div>
-        <div class="summary-body">
-          <pre>{{ executiveSummary }}</pre>
-        </div>
-      </div>
+    <div class="summary-inline-card" *ngIf="dashboardSummary as summary">
+      <pre>{{ summary }}</pre>
     </div>
   </section>
 
