@@ -11,12 +11,23 @@
 # 3) Create env (Please ask me for this file):
 #    cp .env.example .env
 #    # Fill Salesforce values in .env
+#    # Required for OAuth Web Server Flow:
+#    # SF_LOGIN_URL=https://login.salesforce.com
+#    # SF_CLIENT_ID=Connected_App_Consumer_Key
+#    # SF_CLIENT_SECRET=Connected_App_Consumer_Secret
+#    # SF_REDIRECT_URI=http://localhost:4000/auth/salesforce/callback
+#    # Optional:
+#    # SF_REFRESH_TOKEN=<from first auth response if you choose to store it>
+#    # SF_TOKEN_STORE_PATH=<custom path for persisted oauth tokens>
 #
 # 4) Run API:
 #    uvicorn fastapi_app.main:app --reload --port 4000
 #
 # 5) Test endpoints:
 #    curl http://localhost:4000/health
+#    # Open in browser to authenticate:
+#    # http://localhost:4000/auth/salesforce/login
+#    curl http://localhost:4000/auth/salesforce/status
 #    curl http://localhost:4000/api/investigations/trends
 #    curl "http://localhost:4000/api/investigations/trends?startDate=2026-02-01&endDate=2026-02-13&productArea=Connect"
 #    curl http://localhost:4000/api/salesforce/connect-test

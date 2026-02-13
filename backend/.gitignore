@@ -13,3 +13,4 @@ __pycache__/
 .venv/
 venv/
 env/
+.sf_oauth_tokens.json
